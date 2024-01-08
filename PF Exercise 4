@@ -1,0 +1,241 @@
+# 1. CREATE TABLE with PRIMARY KEY:
+Create a table named Candidates with the following columns:
+candidate_id (INTEGER) as the primary key
+name (TEXT)
+party_affiliation (TEXT)
+position (TEXT)
+
+CREATE TABLE Candidate (candidate_id INT PRIMARY KEY, name TEXT, party_affiliation TEXT, position TEXT);
+
+DESCRIBE Candidates;
++-------------------+------+------+-----+---------+-------+
+| Field             | Type | Null | Key | Default | Extra |
++-------------------+------+------+-----+---------+-------+
+| candidate_id      | int  | NO   | PRI | NULL    |       |
+| name              | text | YES  |     | NULL    |       |
+| party_affiliation | text | YES  |     | NULL    |       |
+| position          | text | YES  |     | NULL    |       |
++-------------------+------+------+-----+---------+-------+
+
+# 2. DROP PRIMARY KEY:
+Remove the primary key constraint from the Candidates table (if it exists).
+
+ALTER TABLE Candidates DROP PRIMARY KEY;
+
+DESCRIBE Candidates;
++-------------------+------+------+-----+---------+-------+
+| Field             | Type | Null | Key | Default | Extra |
++-------------------+------+------+-----+---------+-------+
+| candidate_id      | int  | NO   |     | NULL    |       |
+| name              | text | YES  |     | NULL    |       |
+| party_affiliation | text | YES  |     | NULL    |       |
+| position          | text | YES  |     | NULL    |       |
++-------------------+------+------+-----+---------+-------+
+
+
+# 3. ADD PRIMARY KEY:
+Add a primary key constraint to the Candidates table on the candidate_id column.
+
+ALTER TABLE Candidates ADD PRIMARY KEY (candidate_id);
+
+ DESCRIBE Candidates;
++-------------------+------+------+-----+---------+-------+
+| Field             | Type | Null | Key | Default | Extra |
++-------------------+------+------+-----+---------+-------+
+| candidate_id      | int  | NO   | PRI | NULL    |       |
+| name              | text | YES  |     | NULL    |       |
+| party_affiliation | text | YES  |     | NULL    |       |
+| position          | text | YES  |     | NULL    |       |
++-------------------+------+------+-----+---------+-------+
+
+
+# 4. COMPOSITE PRIMARY KEY:
+Create a table named Votes with the following columns:
+voter_id (INTEGER)
+candidate_id (INTEGER)
+Make a composite primary key using both voter_id and candidate_id.
+
+CREATE TABLE Votes (voter_id INT, candidate_id INT);
+
+DESCRIBE Votes;
++--------------+------+------+-----+---------+-------+
+| Field        | Type | Null | Key | Default | Extra |
++--------------+------+------+-----+---------+-------+
+| voter_id     | int  | YES  |     | NULL    |       |
+| candidate_id | int  | YES  |     | NULL    |       |
++--------------+------+------+-----+---------+-------+
+
+ALTER TABLE Votes ADD PRIMARY KEY (voter_id, candidate_id);
+
+DESCRIBE Votes;
++--------------+------+------+-----+---------+-------+
+| Field        | Type | Null | Key | Default | Extra |
++--------------+------+------+-----+---------+-------+
+| voter_id     | int  | NO   | PRI | NULL    |       |
+| candidate_id | int  | NO   | PRI | NULL    |       |
++--------------+------+------+-----+---------+-------+
+
+# 5. FOREIGN KEY:
+Alter the Votes table to add a foreign key constraint to reference the Candidates table's candidate_id column.
+
+ALTER TABLE Votes ADD FOREIGN KEY (candidate_id) REFERENCES Candidates(candidate_id);
+
+SHOW INDEX FROM Votes;
++-------+------------+--------------+--------------+--------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+| Table | Non_unique | Key_name     | Seq_in_index | Column_name  | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment | Visible | Expression |
++-------+------------+--------------+--------------+--------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+| Votes |          0 | PRIMARY      |            1 | voter_id     | A         |           0 |     NULL |   NULL |      | BTREE      |         |               | YES     | NULL       |
+| Votes |          0 | PRIMARY      |            2 | candidate_id | A         |           0 |     NULL |   NULL |      | BTREE      |         |               | YES     | NULL       |
+| Votes |          1 | candidate_id |            1 | candidate_id | A         |           0 |     NULL |   NULL |      | BTREE      |         |               | YES     | NULL       |
++-------+------------+--------------+--------------+--------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+
+
+# 6. CREATE TABLE with FOREIGN KEY:
+Create a table named Voters with the following columns:
+voter_id (INTEGER) as the primary key
+name (TEXT)
+age (INTEGER)
+voted_for (INTEGER) as a foreign key referencing candidate_id in the Candidates table.
+
+CREATE TABLE Voters (voter_id INT PRIMARY KEY, name TEXT, age INT, voted_for INT, FOREIGN KEY (voted_for) REFERENCES Candidates(candidate_id));
+
+DESCRIBE Voters;
++-----------+------+------+-----+---------+-------+
+| Field     | Type | Null | Key | Default | Extra |
++-----------+------+------+-----+---------+-------+
+| voter_id  | int  | NO   | PRI | NULL    |       |
+| name      | text | YES  |     | NULL    |       |
+| age       | int  | YES  |     | NULL    |       |
+| voted_for | int  | YES  | MUL | NULL    |       |
++-----------+------+------+-----+---------+-------+
+
+
+# 7. DROP FOREIGN KEY:
+Remove the foreign key constraint from the Voters table (if it exists).
+
+SHOW CREATE TABLE Voters;
+| Voters | CREATE TABLE `Voters` (
+  `voter_id` int NOT NULL,
+  `name` text,
+  `age` int DEFAULT NULL,
+  `voted_for` int DEFAULT NULL,
+  PRIMARY KEY (`voter_id`),
+  KEY `voted_for` (`voted_for`),
+  CONSTRAINT `Voters_ibfk_1` FOREIGN KEY (`voted_for`) REFERENCES `Candidates` (`candidate_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci |
+
+ALTER TABLE Voters DROP FOREIGN KEY Voters_ibfk_1;
+
+# 8. ADD FOREIGN KEY:
+Add a foreign key constraint to the Voters table referencing the candidate_id column in the Candidates table.
+
+ALTER TABLE Voters ADD FOREIGN KEY (voted_for) REFERENCES Candidates(candidate_id);
+
+
+# Data Manipulation:
+## Populate the Candidates table with at least 5 records of hypothetical candidates and their respective party affiliations and positions.
+
+INSERT INTO Candidates VALUES 
+	(1, 'Pedro Sanchez', 'PSOE', 'President'), 
+	(2, 'Pablo Casado', 'PP', 'President'), 
+	(3, 'Pablo Iglesias', 'Podemos', 'Secretary General'), 
+	(4, 'Santiago Abascal', 'VOX', 'President'), 
+	(5, 'Ines Arrimadas', 'Ciudadanos','President');
+	
+	
+SELECT * FROM Candidates;
++--------------+------------------+-------------------+-------------------+
+| candidate_id | name             | party_affiliation | position          |
++--------------+------------------+-------------------+-------------------+
+|            1 | Pedro Sanchez    | PSOE              | President         |
+|            2 | Pablo Casado     | PP                | President         |
+|            3 | Pablo Iglesias   | Podemos           | Secretary General |
+|            4 | Santiago Abascal | VOX               | President         |
+|            5 | Ines Arrimadas   | Ciudadanos        | President         |
++--------------+------------------+-------------------+-------------------+
+
+
+## Insert data into the Voters table with at least 10 records containing names, ages, and candidates they voted for.
+
+INSERT INTO Voters (name, age, voted_for) VALUES 
+	('Maria', 32, 3), 
+	('Adriana', 29, 3), 
+	('Daniel', 42, 1), 
+	('Sofia', 35, 1), 
+	('Rocio', 33, 2), 
+	('Marta', 45, 4), 
+	('Sara', 34, 3), 
+	('Tomas', 35, 3), 
+	('Laura', 33, 3), 
+	('Carlos', 31, 3);
+
+
+SELECT * FROM Voters;
++----------+---------+------+-----------+
+| voter_id | name    | age  | voted_for |
++----------+---------+------+-----------+
+|        1 | Maria   |   32 |         3 |
+|        2 | Adriana |   29 |         3 |
+|        3 | Daniel  |   42 |         1 |
+|        4 | Sofia   |   35 |         1 |
+|        5 | Rocio   |   33 |         2 |
+|        6 | Marta   |   45 |         4 |
+|        7 | Sara    |   34 |         3 |
+|        8 | Tomas   |   35 |         3 |
+|        9 | Laura   |   33 |         3 |
+|       10 | Carlos  |   31 |         3 |
++----------+---------+------+-----------+
+
+## Manipulate the data to perform queries like finding candidates' details, voters who voted for a specific candidate, etc.
+
+ SELECT * FROM Voters LEFT JOIN Candidates ON Voters.voted_for = Candidates.candidate_id;
++----------+---------+------+-----------+--------------+------------------+-------------------+-------------------+
+| voter_id | name    | age  | voted_for | candidate_id | name             | party_affiliation | position          |
++----------+---------+------+-----------+--------------+------------------+-------------------+-------------------+
+|        1 | Maria   |   32 |         3 |            3 | Pablo Iglesias   | Podemos           | Secretary General |
+|        2 | Adriana |   29 |         3 |            3 | Pablo Iglesias   | Podemos           | Secretary General |
+|        3 | Daniel  |   42 |         1 |            1 | Pedro Sanchez    | PSOE              | President         |
+|        4 | Sofia   |   35 |         1 |            1 | Pedro Sanchez    | PSOE              | President         |
+|        5 | Rocio   |   33 |         2 |            2 | Pablo Casado     | PP                | President         |
+|        6 | Marta   |   45 |         4 |            4 | Santiago Abascal | VOX               | President         |
+|        7 | Sara    |   34 |         3 |            3 | Pablo Iglesias   | Podemos           | Secretary General |
+|        8 | Tomas   |   35 |         3 |            3 | Pablo Iglesias   | Podemos           | Secretary General |
+|        9 | Laura   |   33 |         3 |            3 | Pablo Iglesias   | Podemos           | Secretary General |
+|       10 | Carlos  |   31 |         3 |            3 | Pablo Iglesias   | Podemos           | Secretary General |
++----------+---------+------+-----------+--------------+------------------+-------------------+-------------------+
+
+
+SELECT Voters.name, Candidates.name, Candidates.party_affiliation FROM Voters LEFT JOIN Candidates ON Voters.voted_for = Candidates.candidate_id WHERE voted_for = 3;
++---------+----------------+-------------------+
+| name    | name           | party_affiliation |
++---------+----------------+-------------------+
+| Maria   | Pablo Iglesias | Podemos           |
+| Adriana | Pablo Iglesias | Podemos           |
+| Sara    | Pablo Iglesias | Podemos           |
+| Tomas   | Pablo Iglesias | Podemos           |
+| Laura   | Pablo Iglesias | Podemos           |
+| Carlos  | Pablo Iglesias | Podemos           |
++---------+----------------+-------------------+
+
+ SELECT Voters.name, Candidates.name, Candidates.party_affiliation FROM Voters LEFT JOIN Candidates ON Voters.voted_for = Candidates.candidate_id WHERE voted_for = 1;
++--------+---------------+-------------------+
+| name   | name          | party_affiliation |
++--------+---------------+-------------------+
+| Daniel | Pedro Sanchez | PSOE              |
+| Sofia  | Pedro Sanchez | PSOE              |
++--------+---------------+-------------------+
+
+ SELECT Voters.name, Candidates.name, Candidates.party_affiliation FROM Voters LEFT JOIN Candidates ON Voters.voted_for = Candidates.candidate_id WHERE age >= 33;
++--------+------------------+-------------------+
+| name   | name             | party_affiliation |
++--------+------------------+-------------------+
+| Daniel | Pedro Sanchez    | PSOE              |
+| Sofia  | Pedro Sanchez    | PSOE              |
+| Rocio  | Pablo Casado     | PP                |
+| Marta  | Santiago Abascal | VOX               |
+| Sara   | Pablo Iglesias   | Podemos           |
+| Tomas  | Pablo Iglesias   | Podemos           |
+| Laura  | Pablo Iglesias   | Podemos           |
++--------+------------------+-------------------+
+
+
